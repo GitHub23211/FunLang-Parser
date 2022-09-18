@@ -77,11 +77,17 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
 
     lazy val tipe : PackratParser[Type] =
         // FIXME
+        "(" ~> tipe <~ ")" |
+        tipe ~ ("=>" ~> tipe) ^^ {case to ~ from => FunType(to, from)} |
+        "(" ~> repsep (tipe, ",") <~ ")" ^^ {case v => TupleType(v)} |
+        "List" ~> "[" ~> tipe <~ "]" ^^ {case t => ListType(t)} |
         basictipe
+
 
     lazy val basictipe : PackratParser[Type] =
         // FIXME
-        "Int" ^^^ IntType ()
+        "Int" ^^^ IntType () |
+        "Bool" ^^^ BoolType ()
 
     // NOTE: You should not change anything below here...
 
