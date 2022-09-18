@@ -272,4 +272,7 @@ class SyntaxAnalysisTests extends ParseTests {
     //
     // FIXME: more tests here...
 
+    test ("BRACKETS: parenthesized expression 2") {
+        exp ("5 + func(5)") should parseTo[FunLangNode] (PlusExp (IdnUse ("a"), IntExp (5)))
+    }
 }

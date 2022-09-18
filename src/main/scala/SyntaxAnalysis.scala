@@ -30,9 +30,9 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
 
     lazy val factor : PackratParser[Exp] =
         // FIXME
-        literal |
-        identifier ^^ IdnUse |
         "(" ~> exp <~ ")" |
+        identifier ^^ IdnUse |
+        literal |
         failure ("exp expected")
 
     lazy val matchterm : PackratParser[Exp] =
@@ -48,6 +48,13 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
 
     lazy val exp : PackratParser[Exp] =
         // FIXME
+        factor ~ ("+" ~> factor) ^^ {case f1 ~ f2 => PlusExp(f1, f2)} |
+        factor ~ ("-" ~> factor) ^^ {case f1 ~ f2 => MinusExp(f1, f2)} |
+        factor ~ ("*" ~> factor) ^^ {case f1 ~ f2 => StarExp(f1, f2)} |
+        factor ~ ("/" ~> factor) ^^ {case f1 ~ f2 => SlashExp(f1, f2)} |
+        factor ~ ("==" ~> factor) ^^ {case f1 ~ f2 => EqualExp(f1, f2)} |
+        factor ~ ("<" ~> factor) ^^ {case f1 ~ f2 => LessExp(f1, f2)} |
+        factor ~ ("(" ~> factor <~ ")") ^^ {case f1 ~ f2 => AppExp(f1, f2)} |
         factor
 
     lazy val definitions : PackratParser[Vector[Defn]] =
