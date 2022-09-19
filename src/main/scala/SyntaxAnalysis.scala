@@ -49,7 +49,7 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
     lazy val exp : PackratParser[Exp] =
         // FIXME
         "(" ~> repsep (factor, ",") <~ ")" ^^ {case e => TupleExp(e)} |
-        "List(" ~> repsep (exp, ",") <~ ")" ^^ {case e => ListExp(e)} |
+        "List" ~> "(" ~> repsep (exp, ",") <~ ")" ^^ {case e => ListExp(e)} |
         ("(" ~> idndef <~ ")") ~ ("=>" ~> exp) ^^ {case arg ~ b => LamExp(arg, b)} | 
         exp ~ ("(" ~> exp <~ ")") ^^ {case fn ~ arg => AppExp(fn, arg)} | 
         exp ~ ("*" ~> exp) ^^ {case l ~ r => StarExp(l, r)} |
@@ -72,11 +72,16 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
 
     lazy val pat : PackratParser[Pat] =
         // FIXME
+        "List" ~> "(" ~> repsep(pat, ",") <~ ")" ^^ {case p => ListPat(p)} | 
+        "(" ~> repsep(pat, ",") <~ ")" ^^ {case p => TuplePat(p)} | 
+        pat ~ ("::" ~> pat) ^^ {case p1 ~ p2 => ConsPat(p1, p2)} |
+        "(" ~> pat <~ ")" |
         basicpat
 
     lazy val basicpat : PackratParser[Pat] =
         // FIXME
-        literal ^^ LiteralPat
+        literal ^^ LiteralPat | 
+        "_" ^^^ AnyPat()
 
     lazy val tipe : PackratParser[Type] =
         // FIXME
