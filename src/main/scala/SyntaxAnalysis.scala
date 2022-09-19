@@ -31,7 +31,6 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
     lazy val factor : PackratParser[Exp] =
         // FIXME
         "(" ~> exp <~ ")" |
-        "List(" ~> repsep (exp, ",") <~ ")" ^^ {case e => ListExp(e)} |
         identifier ^^ IdnUse |
         literal |
         failure ("exp expected")
@@ -49,6 +48,8 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
 
     lazy val exp : PackratParser[Exp] =
         // FIXME
+        "(" ~> repsep (factor, ",") <~ ")" ^^ {case e => TupleExp(e)} |
+        "List(" ~> repsep (exp, ",") <~ ")" ^^ {case e => ListExp(e)} |
         ("(" ~> idndef <~ ")") ~ ("=>" ~> exp) ^^ {case arg ~ b => LamExp(arg, b)} | 
         exp ~ ("(" ~> exp <~ ")") ^^ {case fn ~ arg => AppExp(fn, arg)} | 
         exp ~ ("*" ~> exp) ^^ {case l ~ r => StarExp(l, r)} |
