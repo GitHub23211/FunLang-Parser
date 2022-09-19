@@ -37,17 +37,19 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
 
     lazy val matchterm : PackratParser[Exp] =
         // FIXME
+        exp ~ ("match" ~> "{" ~> rep1 (caseline) <~ "}") ^^ {case e ~ c => MatchExp(e, c)} |
         factor
 
     // matches an individual 
     lazy val caseline : PackratParser[(Pat,Exp)] =
         // FIXME
-        "fixme" ^^^ ((AnyPat(), IntExp(1)))
+        ("case" ~> pat) ~ ("=>" ~> exp) ^^ {case p ~ e => (p, e)}
 
     // FIXME   add parsers between factor and exp
 
     lazy val exp : PackratParser[Exp] =
         // FIXME
+        ("{" ~> definitions) ~ (exp <~ "}") ^^ {case d ~ e => BlockExp(d, e)} |
         "(" ~> repsep (factor, ",") <~ ")" ^^ {case e => TupleExp(e)} |
         "List" ~> "(" ~> repsep (exp, ",") <~ ")" ^^ {case e => ListExp(e)} |
         ("(" ~> idndef <~ ")") ~ ("=>" ~> exp) ^^ {case arg ~ b => LamExp(arg, b)} | 
@@ -64,16 +66,19 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
 
     lazy val definitions : PackratParser[Vector[Defn]] =
         // FIXME
-        "fixme" ^^^ Vector()
+        rep1sep(defn, ";")
 
     lazy val defn : PackratParser[Defn] =
         // FIXME
-        "fixme" ^^^ Defn(IdnDef("fixme", IntType()), IntExp(3))
+        ("val" ~> idndef) ~ ("=" ~> exp) ^^ {case i ~ e => Defn(i, e)}
+        // ("def" ~> identifier) ~ ("(" ~> identifier <~ ":") ~ (tipe <~ ")") ~ (":" ~> tipe) ~ ("=" ~> exp) ^^ {case i1 ~ i2 ~ t1 ~ t2 ~ e => Defn(IdnDef(i1, FunType(t1, t2)), 
+        // LamExp(IdnDef(i2, t2), e))}
+        
 
     lazy val pat : PackratParser[Pat] =
         // FIXME
-        "List" ~> "(" ~> repsep(pat, ",") <~ ")" ^^ {case p => ListPat(p)} | 
-        "(" ~> repsep(pat, ",") <~ ")" ^^ {case p => TuplePat(p)} | 
+        "List" ~> "(" ~> repsep (pat, ",") <~ ")" ^^ {case p => ListPat(p)} | 
+        "(" ~> rep1sep (pat, ",") <~ ")" ^^ {case p => TuplePat(p)} | 
         pat ~ ("::" ~> pat) ^^ {case p1 ~ p2 => ConsPat(p1, p2)} |
         "(" ~> pat <~ ")" |
         basicpat
@@ -81,13 +86,14 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
     lazy val basicpat : PackratParser[Pat] =
         // FIXME
         literal ^^ LiteralPat | 
+        identifier ^^ IdentPat |
         "_" ^^^ AnyPat()
 
     lazy val tipe : PackratParser[Type] =
         // FIXME
         "(" ~> tipe <~ ")" |
         tipe ~ ("=>" ~> tipe) ^^ {case to ~ from => FunType(to, from)} |
-        "(" ~> repsep (tipe, ",") <~ ")" ^^ {case v => TupleType(v)} |
+        "(" ~> rep1sep (tipe, ",") <~ ")" ^^ {case v => TupleType(v)} |
         "List" ~> "[" ~> tipe <~ "]" ^^ {case t => ListType(t)} |
         basictipe
 

@@ -272,7 +272,12 @@ class SyntaxAnalysisTests extends ParseTests {
     //
     // FIXME: more tests here...
 
-    test ("BRACKETS: parenthesized expression 2") {
-        exp ("5 + func(5) * 5 - 3 + ( 5 + 2 )") should parseTo[FunLangNode] (PlusExp (IntExp (5), AppExp (IdnUse("func"), IntExp(5))))
+    test ("BLOCK: block with one definition 1") {
+      program ("""{
+                    val x   : Int        = 100;
+                  }
+                """) should parseTo[Program] (Program(BlockExp(
+                    Vector(Defn(IdnDef("x", IntType()), IntExp(100))),
+                    AppExp (IdnUse ("inc"), IdnUse ("x")))))
     }
 }
