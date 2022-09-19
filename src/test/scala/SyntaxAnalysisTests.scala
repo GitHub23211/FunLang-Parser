@@ -271,13 +271,4 @@ class SyntaxAnalysisTests extends ParseTests {
     // ================================================================
     //
     // FIXME: more tests here...
-
-    test ("BLOCK: block with one definition 1") {
-      program ("""{
-                    val x   : Int        = 100;
-                  }
-                """) should parseTo[Program] (Program(BlockExp(
-                    Vector(Defn(IdnDef("x", IntType()), IntExp(100))),
-                    AppExp (IdnUse ("inc"), IdnUse ("x")))))
-    }
 }

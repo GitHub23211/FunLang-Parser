@@ -49,7 +49,7 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
 
     lazy val exp : PackratParser[Exp] =
         // FIXME
-        ("{" ~> definitions) ~ (exp <~ "}") ^^ {case d ~ e => BlockExp(d, e)} |
+        ("{" ~> definitions) ~ (";" ~> exp <~ "}") ^^ {case d ~ e => BlockExp(d, e)} |
         "(" ~> repsep (factor, ",") <~ ")" ^^ {case e => TupleExp(e)} |
         "List" ~> "(" ~> repsep (exp, ",") <~ ")" ^^ {case e => ListExp(e)} |
         ("(" ~> idndef <~ ")") ~ ("=>" ~> exp) ^^ {case arg ~ b => LamExp(arg, b)} | 
@@ -62,6 +62,7 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
         exp ~ ("<" ~> exp) ^^ {case l ~ r => LessExp(l, r)} |
         exp ~ ("==" ~> exp) ^^ {case l ~ r => EqualExp(l, r)} |
         (keyword ~> "(" ~> exp <~ ")") ~ (exp <~ keyword) ~ exp ^^ {case con ~ thenExp ~ elseExp => IfExp(con, thenExp, elseExp)} | 
+        matchterm |
         factor
 
     lazy val definitions : PackratParser[Vector[Defn]] =
