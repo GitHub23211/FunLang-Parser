@@ -29,10 +29,8 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
         integer ^^ (s => IntExp (s.toInt))
 
     lazy val factor : PackratParser[Exp] =
-        // FIXME 
+        // FIXME
         "(" ~> exp <~ ")" |
-        (keyword ~> "(" ~> exp <~ ")") ~ (exp <~ keyword) ~ exp ^^ {case con ~ thenExp ~ elseExp => IfExp(con, thenExp, elseExp)} | 
-        ("(" ~> idndef <~ ")") ~ ("=>" ~> exp) ^^ {case arg ~ b => LamExp(arg, b)} | 
         identifier ^^ IdnUse |
         literal |
         failure ("exp expected")
@@ -50,13 +48,16 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
 
     lazy val exp : PackratParser[Exp] =
         // FIXME
-        factor ~ ("+" ~> factor) ^^ {case l ~ r => PlusExp(l, r)} |
-        factor ~ ("-" ~> factor) ^^ {case l ~ r => MinusExp(l, r)} |
-        factor ~ ("*" ~> factor) ^^ {case l ~ r => StarExp(l, r)} |
-        factor ~ ("/" ~> factor) ^^ {case l ~ r => SlashExp(l, r)} |
-        factor ~ ("==" ~> factor) ^^ {case l ~ r => EqualExp(l, r)} |
-        factor ~ ("<" ~> factor) ^^ {case l ~ r => LessExp(l, r)} |
-        factor ~ ("(" ~> factor <~ ")") ^^ {case l ~ r => AppExp(l, r)} |
+        exp ~ ("+" ~> exp) ^^ {case l ~ r => PlusExp(l, r)} |
+        exp ~ ("-" ~> exp) ^^ {case l ~ r => MinusExp(l, r)} |
+        exp ~ ("*" ~> exp) ^^ {case l ~ r => StarExp(l, r)} |
+        exp ~ ("/" ~> exp) ^^ {case l ~ r => SlashExp(l, r)} |
+        exp ~ ("<" ~> exp) ^^ {case l ~ r => LessExp(l, r)} |
+        exp ~ ("==" ~> exp) ^^ {case l ~ r => EqualExp(l, r)} |
+        exp ~ ("::" ~> exp) ^^ {case l ~ r => ConsExp(l, r)} |
+        exp ~ ("(" ~> exp <~ ")") ^^ {case fn ~ arg => AppExp(fn, arg)} | 
+        (keyword ~> "(" ~> exp <~ ")") ~ (exp <~ keyword) ~ exp ^^ {case con ~ thenExp ~ elseExp => IfExp(con, thenExp, elseExp)} | 
+        ("(" ~> idndef <~ ")") ~ ("=>" ~> exp) ^^ {case arg ~ b => LamExp(arg, b)} | 
         factor
 
     lazy val definitions : PackratParser[Vector[Defn]] =
