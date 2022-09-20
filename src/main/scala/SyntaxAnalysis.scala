@@ -37,7 +37,7 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
 
     lazy val matchterm : PackratParser[Exp] =
         // FIXME
-        exp ~ ("match" ~> "{" ~> rep1 (caseline) <~ "}") ^^ {case e ~ c => MatchExp(e, c)} |
+        factor ~ ("match" ~> "{" ~> rep1 (caseline) <~ "}") ^^ {case e ~ c => MatchExp(e, c)} |
         factor
 
     // matches an individual 
@@ -49,7 +49,7 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
 
     lazy val exp : PackratParser[Exp] =
         // FIXME
-        ("{" ~> definitions) ~ (";" ~> exp <~ "}") ^^ {case d ~ e => BlockExp(d, e)} |
+        ("{" ~> definitions) ~ (exp <~ "}") ^^ {case d ~ e => BlockExp(d, e)} |
         "(" ~> repsep (factor, ",") <~ ")" ^^ {case e => TupleExp(e)} |
         "List" ~> "(" ~> repsep (exp, ",") <~ ")" ^^ {case e => ListExp(e)} |
         ("(" ~> idndef <~ ")") ~ ("=>" ~> exp) ^^ {case arg ~ b => LamExp(arg, b)} | 
@@ -67,13 +67,13 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
 
     lazy val definitions : PackratParser[Vector[Defn]] =
         // FIXME
-        rep1sep(defn, ";")
+        rep1sep(defn, ";") <~ ";"
 
     lazy val defn : PackratParser[Defn] =
         // FIXME
-        ("val" ~> idndef) ~ ("=" ~> exp) ^^ {case i ~ e => Defn(i, e)}
-        // ("def" ~> identifier) ~ ("(" ~> identifier <~ ":") ~ (tipe <~ ")") ~ (":" ~> tipe) ~ ("=" ~> exp) ^^ {case i1 ~ i2 ~ t1 ~ t2 ~ e => Defn(IdnDef(i1, FunType(t1, t2)), 
-        // LamExp(IdnDef(i2, t2), e))}
+        ("val" ~> idndef) ~ ("=" ~> exp) ^^ {case i ~ e => Defn(i, e)} |
+        ("def" ~> identifier) ~ ("(" ~> identifier <~ ":") ~ (tipe <~ ")") ~ (":" ~> tipe) ~ ("=" ~> exp) ^^ {case i1 ~ i2 ~ t1 ~ t2 ~ e => Defn(IdnDef(i1, FunType(t1, t2)), 
+        LamExp(IdnDef(i2, t1), e))}
         
 
     lazy val pat : PackratParser[Pat] =
