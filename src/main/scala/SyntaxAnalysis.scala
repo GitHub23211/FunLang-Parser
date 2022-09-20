@@ -77,7 +77,7 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
 
     lazy val exp1 : PackratParser[Exp] =
         matchterm |
-        exp1
+        exp2
 
     lazy val exp : PackratParser[Exp] =
         (keyword ~> "(" ~> exp <~ ")") ~ (exp <~ keyword) ~ exp ^^ {case con ~ thenExp ~ elseExp => IfExp(con, thenExp, elseExp)} | 
