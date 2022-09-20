@@ -57,13 +57,13 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
         factor 
     
     lazy val exp5 : PackratParser[Exp] =
-        exp5 ~ ("*" ~> exp5) ^^ {case l ~ r => StarExp(l, r)} |
-        exp5 ~ ("/" ~> exp5) ^^ {case l ~ r => SlashExp(l, r)} |
+        exp5 ~ ("*" ~> exp6) ^^ {case l ~ r => StarExp(l, r)} |
+        exp5 ~ ("/" ~> exp6) ^^ {case l ~ r => SlashExp(l, r)} |
         exp6
 
     lazy val exp4 : PackratParser[Exp] =
-        exp4 ~ ("+" ~> exp4) ^^ {case l ~ r => PlusExp(l, r)} |
-        exp4 ~ ("-" ~> exp4) ^^ {case l ~ r => MinusExp(l, r)} |
+        exp4 ~ ("+" ~> exp5) ^^ {case l ~ r => PlusExp(l, r)} |
+        exp4 ~ ("-" ~> exp5) ^^ {case l ~ r => MinusExp(l, r)} |
         exp5
 
     lazy val exp3 : PackratParser[Exp] =
@@ -71,8 +71,8 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
         exp4
 
     lazy val exp2 : PackratParser[Exp] =
-        exp2 ~ ("<" ~> exp2) ^^ {case l ~ r => LessExp(l, r)} |
-        exp2 ~ ("==" ~> exp2) ^^ {case l ~ r => EqualExp(l, r)} |
+        exp3 ~ ("<" ~> exp3) ^^ {case l ~ r => LessExp(l, r)} |
+        exp3 ~ ("==" ~> exp3) ^^ {case l ~ r => EqualExp(l, r)} |
         exp3
 
     lazy val exp1 : PackratParser[Exp] =
