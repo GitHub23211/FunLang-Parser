@@ -54,16 +54,28 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
         "List" ~> "(" ~> repsep (exp, ",") <~ ")" ^^ {case e => ListExp(e)} |
         ("(" ~> idndef <~ ")") ~ ("=>" ~> exp) ^^ {case arg ~ b => LamExp(arg, b)} | 
         exp ~ ("(" ~> exp <~ ")") ^^ {case fn ~ arg => AppExp(fn, arg)} | 
+    
+    lazy val exp1 : PackratParser[Exp] =
         exp ~ ("*" ~> exp) ^^ {case l ~ r => StarExp(l, r)} |
         exp ~ ("/" ~> exp) ^^ {case l ~ r => SlashExp(l, r)} |
+
+    lazy val exp2 : PackratParser[Exp] =
         exp ~ ("+" ~> exp) ^^ {case l ~ r => PlusExp(l, r)} |
         exp ~ ("-" ~> exp) ^^ {case l ~ r => MinusExp(l, r)} |
+
+    lazy val exp3 : PackratParser[Exp] =
         exp ~ ("::" ~> exp) ^^ {case l ~ r => ConsExp(l, r)} |
-        exp ~ ("<" ~> exp) ^^ {case l ~ r => LessExp(l, r)} |
-        exp ~ ("==" ~> exp) ^^ {case l ~ r => EqualExp(l, r)} |
-        (keyword ~> "(" ~> exp <~ ")") ~ (exp <~ keyword) ~ exp ^^ {case con ~ thenExp ~ elseExp => IfExp(con, thenExp, elseExp)} | 
+
+    lazy val exp4 : PackratParser[Exp] =
+        factor ~ ("<" ~> factor) ^^ {case l ~ r => LessExp(l, r)} |
+        factor ~ ("==" ~> factor) ^^ {case l ~ r => EqualExp(l, r)} |
+
+    lazy val exp5 : PackratParser[Exp] =
         matchterm |
-        factor
+    
+    lazy val exp6 : PackratParser[Exp] =
+        (keyword ~> "(" ~> exp <~ ")") ~ (exp <~ keyword) ~ exp ^^ {case con ~ thenExp ~ elseExp => IfExp(con, thenExp, elseExp)} | 
+        
 
     lazy val definitions : PackratParser[Vector[Defn]] =
         // FIXME

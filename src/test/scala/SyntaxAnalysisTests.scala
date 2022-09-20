@@ -271,4 +271,37 @@ class SyntaxAnalysisTests extends ParseTests {
     // ================================================================
     //
     // FIXME: more tests here...
+
+    test ("precedence rules") {
+        program("""{
+                    val x: Int = 5;
+                    val y: Int = 2;
+                    if (x + y < 10) 
+                        true
+                    else
+                        false             
+                }
+            """) should parseTo[Program] (Program(BlockExp(
+        Vector(Defn(IdnDef("x", IntType()), IntExp(5)), 
+        Defn(IdnDef("y", IntType()), IntExp(2))), 
+        IfExp(LessExp(PlusExp(IdnUse("x"), IdnUse("y")), IntExp(10)), BoolExp(true), BoolExp(false))
+    )))
+    }
+
+    test("associativity rules") {
+        program("""{
+                    val x: Int = 1;
+                    val y: Int = 2;
+                    val z: Int = 3;
+                    x == y == z
+                }
+            """) should parseTo[Program] (Program(BlockExp(
+                    Vector(
+                        Defn(IdnDef("x", IntType()), IntExp(1)),
+                        Defn(IdnDef("y", IntType()), IntExp(2)),
+                        Defn(IdnDef("z", IntType()), IntExp(3)),
+                        ),
+                    EqualExp(IdnUse("x"), IdnUse("y"))
+                )))
+    }
 }
