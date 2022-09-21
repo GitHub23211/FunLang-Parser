@@ -362,6 +362,7 @@ class SyntaxAnalysisTests extends ParseTests {
                 (x, b) match {
                     case (List(y, _), 15) => x :: b
                     case (List(_), 15) => b
+                    case _ => 0
                 };
                 matchCase(arr)
             }
@@ -373,7 +374,8 @@ class SyntaxAnalysisTests extends ParseTests {
                             MatchExp(TupleExp(Vector(IdnUse("x"), IdnUse("b"))),
                                 Vector(
                                     (TuplePat(Vector(ListPat(Vector(IdentPat("y"), AnyPat())), LiteralPat(IntExp(15)))), ConsExp(IdnUse("x"), IdnUse("b"))),
-                                    (TuplePat(Vector(ListPat(Vector(AnyPat())), LiteralPat(IntExp(15)))), IdnUse("b"))
+                                    (TuplePat(Vector(ListPat(Vector(AnyPat())), LiteralPat(IntExp(15)))), IdnUse("b")),
+                                    (AnyPat(), IntExp(0))
                                 )
                             )
                         )
