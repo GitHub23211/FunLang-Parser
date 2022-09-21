@@ -288,20 +288,19 @@ class SyntaxAnalysisTests extends ParseTests {
     )))
     }
 
-    test("associativity rules") {
+    test("associativity rules for + - / *") {
         program("""{
                     val x: Int = 2;
                     val y: Int = 3;
-                    val z: Int = 4;
-                    x + y * z / x
+                    val z: Int => Int = (i : Int) => i + 4 * 2;
+                    x + y * z(4) / x - z(4)
                 }
             """) should parseTo[Program] (Program(BlockExp(
                     Vector(
                         Defn(IdnDef("x", IntType()), IntExp(2)),
                         Defn(IdnDef("y", IntType()), IntExp(3)),
-                        Defn(IdnDef("z", IntType()), IntExp(4)),
-                        ),
-                    PlusExp(IdnUse("x"), SlashExp(StarExp(IdnUse("y"), IdnUse("z")), IdnUse("x")))
+                        Defn(IdnDef("z", FunType(IntType(), IntType())), LamExp(IdnDef("i", IntType()),PlusExp(IdnUse("i"), StarExp(IntExp(4), IntExp(2)))))),
+                    MinusExp(PlusExp(IdnUse("x"), SlashExp(StarExp(IdnUse("y"), AppExp(IdnUse("z"), IntExp(4))), IdnUse("x"))), AppExp(IdnUse("z"), IntExp(4)))
                 )))
     }
 
