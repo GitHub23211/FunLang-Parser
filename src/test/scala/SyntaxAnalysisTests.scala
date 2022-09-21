@@ -275,17 +275,23 @@ class SyntaxAnalysisTests extends ParseTests {
     test ("block statement with if statement") {
         program("""{
                     val x: Int = 5;
-                    val y: Int = 2;
-                    if (x + y < 10) 
+                    def sum(i:Int):Int = i + 3;
+                    if (x + sum(4) < 10) 
                         true
                     else
                         false             
                 }
             """) should parseTo[Program] (Program(BlockExp(
-        Vector(Defn(IdnDef("x", IntType()), IntExp(5)), 
-        Defn(IdnDef("y", IntType()), IntExp(2))), 
-        IfExp(LessExp(PlusExp(IdnUse("x"), IdnUse("y")), IntExp(10)), BoolExp(true), BoolExp(false))
-    )))
+                    Vector(
+                            Defn(IdnDef("x", IntType()), IntExp(5)), 
+                            Defn(IdnDef("sum", FunType(IntType(), IntType())), 
+                                LamExp(IdnDef("i", IntType()), PlusExp(IdnUse("i"), IntExp(3)))
+                            )
+                        ), 
+                     IfExp(
+                        LessExp(PlusExp(IdnUse("x"), AppExp(IdnUse("sum"), IntExp(4))), IntExp(10)), BoolExp(true), BoolExp(false)
+                    )
+                )))
     }
 
     test("associativity rules for + - / *") {
