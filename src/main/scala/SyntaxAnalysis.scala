@@ -35,37 +35,37 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
         failure ("exp expected")
 
     lazy val matchterm : PackratParser[Exp] =
-        factor ~ ("match" ~> "{" ~> rep1 (caseline) <~ "}") ^^ {case e ~ c => MatchExp(e, c)}
+        factor ~ ("match" ~> "{" ~> rep1 (caseline) <~ "}") ^^ MatchExp
 
     // matches an individual 
     lazy val caseline : PackratParser[(Pat,Exp)] =
         ("case" ~> pat) ~ ("=>" ~> exp) ^^ {case p ~ e => (p, e)}
 
     lazy val exp6 : PackratParser[Exp] =
-        ("{" ~> definitions) ~ (exp <~ "}") ^^ {case d ~ e => BlockExp(d, e)} |
-        "(" ~> repsep (factor, ",") <~ ")" ^^ {case e => TupleExp(e)} |
-        "List" ~> "(" ~> repsep (exp, ",") <~ ")" ^^ {case e => ListExp(e)} |
-        ("(" ~> idndef <~ ")") ~ ("=>" ~> exp) ^^ {case arg ~ b => LamExp(arg, b)} | 
-        exp6 ~ ("(" ~> exp <~ ")") ^^ {case fn ~ arg => AppExp(fn, arg)} |
+        ("{" ~> definitions) ~ (exp <~ "}") ^^ BlockExp |
+        "(" ~> repsep (factor, ",") <~ ")" ^^ TupleExp |
+        "List" ~> "(" ~> repsep (exp, ",") <~ ")" ^^ ListExp |
+        ("(" ~> idndef <~ ")") ~ ("=>" ~> exp) ^^ LamExp | 
+        exp6 ~ ("(" ~> exp <~ ")") ^^ AppExp |
         factor 
     
     lazy val exp5 : PackratParser[Exp] =
-        exp5 ~ ("*" ~> exp6) ^^ {case l ~ r => StarExp(l, r)} |
-        exp5 ~ ("/" ~> exp6) ^^ {case l ~ r => SlashExp(l, r)} |
+        exp5 ~ ("*" ~> exp6) ^^ StarExp |
+        exp5 ~ ("/" ~> exp6) ^^ SlashExp |
         exp6
 
     lazy val exp4 : PackratParser[Exp] =
-        exp4 ~ ("+" ~> exp5) ^^ {case l ~ r => PlusExp(l, r)} |
-        exp4 ~ ("-" ~> exp5) ^^ {case l ~ r => MinusExp(l, r)} |
+        exp4 ~ ("+" ~> exp5) ^^ PlusExp |
+        exp4 ~ ("-" ~> exp5) ^^ MinusExp |
         exp5
 
     lazy val exp3 : PackratParser[Exp] =
-        exp4 ~ ("::" ~> exp3) ^^ {case l ~ r => ConsExp(l, r)} |
+        exp4 ~ ("::" ~> exp3) ^^ ConsExp |
         exp4
 
     lazy val exp2 : PackratParser[Exp] =
-        exp3 ~ ("<" ~> exp3) ^^ {case l ~ r => LessExp(l, r)} |
-        exp3 ~ ("==" ~> exp3) ^^ {case l ~ r => EqualExp(l, r)} |
+        exp3 ~ ("<" ~> exp3) ^^ LessExp |
+        exp3 ~ ("==" ~> exp3) ^^ EqualExp |
         exp3
 
     lazy val exp1 : PackratParser[Exp] =
@@ -73,22 +73,22 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
         exp2
 
     lazy val exp : PackratParser[Exp] =
-        (keyword ~> "(" ~> exp <~ ")") ~ (exp <~ keyword) ~ exp ^^ {case con ~ thenExp ~ elseExp => IfExp(con, thenExp, elseExp)} | 
+        (keyword ~> "(" ~> exp <~ ")") ~ (exp <~ keyword) ~ exp ^^ IfExp | 
         exp1
 
     lazy val definitions : PackratParser[Vector[Defn]] =
         (rep1sep(defn, ";")) <~ ";"
 
     lazy val defn : PackratParser[Defn] =
-        ("val" ~> idndef) ~ ("=" ~> exp) ^^ {case i ~ e => Defn(i, e)} |
+        ("val" ~> idndef) ~ ("=" ~> exp) ^^ Defn |
         ("def" ~> identifier) ~ ("(" ~> identifier <~ ":") ~ (tipe <~ ")") ~ (":" ~> tipe) ~ ("=" ~> exp) ^^ {case i1 ~ i2 ~ t1 ~ t2 ~ e => Defn(IdnDef(i1, FunType(t1, t2)), 
         LamExp(IdnDef(i2, t1), e))}
         
 
     lazy val pat : PackratParser[Pat] =
-        "List" ~> "(" ~> repsep (pat, ",") <~ ")" ^^ {case p => ListPat(p)} | 
-        "(" ~> rep1sep (pat, ",") <~ ")" ^^ {case p => TuplePat(p)} | 
-        pat ~ ("::" ~> pat) ^^ {case p1 ~ p2 => ConsPat(p1, p2)} |
+        "List" ~> "(" ~> repsep (pat, ",") <~ ")" ^^ ListPat | 
+        "(" ~> rep1sep (pat, ",") <~ ")" ^^ TuplePat | 
+        pat ~ ("::" ~> pat) ^^ ConsPat |
         "(" ~> pat <~ ")" |
         basicpat
 
@@ -99,9 +99,9 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
 
     lazy val tipe : PackratParser[Type] =
         "(" ~> tipe <~ ")" |
-        tipe ~ ("=>" ~> tipe) ^^ {case to ~ from => FunType(to, from)} |
-        "(" ~> rep1sep (tipe, ",") <~ ")" ^^ {case v => TupleType(v)} |
-        "List" ~> "[" ~> tipe <~ "]" ^^ {case t => ListType(t)} |
+        tipe ~ ("=>" ~> tipe) ^^ FunType |
+        "(" ~> rep1sep (tipe, ",") <~ ")" ^^ TupleType |
+        "List" ~> "[" ~> tipe <~ "]" ^^ ListType |
         basictipe
 
 
