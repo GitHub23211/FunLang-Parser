@@ -37,8 +37,7 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
 
     lazy val matchterm : PackratParser[Exp] =
         // FIXME
-        factor ~ ("match" ~> "{" ~> rep1 (caseline) <~ "}") ^^ {case e ~ c => MatchExp(e, c)} |
-        exp
+        factor ~ ("match" ~> "{" ~> rep1 (caseline) <~ "}") ^^ {case e ~ c => MatchExp(e, c)}
 
     // matches an individual 
     lazy val caseline : PackratParser[(Pat,Exp)] =
@@ -67,7 +66,7 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
         exp5
 
     lazy val exp3 : PackratParser[Exp] =
-        exp3 ~ ("::" ~> exp3) ^^ {case l ~ r => ConsExp(l, r)} |
+        exp4 ~ ("::" ~> exp3) ^^ {case l ~ r => ConsExp(l, r)} |
         exp4
 
     lazy val exp2 : PackratParser[Exp] =

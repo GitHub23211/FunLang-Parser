@@ -272,7 +272,7 @@ class SyntaxAnalysisTests extends ParseTests {
     //
     // FIXME: more tests here...
 
-    test ("precedence rules") {
+    test ("block statement with if statement") {
         program("""{
                     val x: Int = 5;
                     val y: Int = 2;
@@ -289,6 +289,23 @@ class SyntaxAnalysisTests extends ParseTests {
     }
 
     test("associativity rules") {
+        program("""{
+                    val x: Int = 2;
+                    val y: Int = 3;
+                    val z: Int = 4;
+                    x + y * z / x
+                }
+            """) should parseTo[Program] (Program(BlockExp(
+                    Vector(
+                        Defn(IdnDef("x", IntType()), IntExp(2)),
+                        Defn(IdnDef("y", IntType()), IntExp(3)),
+                        Defn(IdnDef("z", IntType()), IntExp(4)),
+                        ),
+                    PlusExp(IdnUse("x"), SlashExp(StarExp(IdnUse("y"), IdnUse("z")), IdnUse("x")))
+                )))
+    }
+
+    test("associativity rules for non-associatives") {
         program("""{
                     val x: Int = 1;
                     val y: Int = 2;
