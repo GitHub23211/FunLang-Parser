@@ -299,8 +299,23 @@ class SyntaxAnalysisTests extends ParseTests {
                     Vector(
                         Defn(IdnDef("x", IntType()), IntExp(2)),
                         Defn(IdnDef("y", IntType()), IntExp(3)),
-                        Defn(IdnDef("z", FunType(IntType(), IntType())), LamExp(IdnDef("i", IntType()),PlusExp(IdnUse("i"), StarExp(IntExp(4), IntExp(2)))))),
-                    MinusExp(PlusExp(IdnUse("x"), SlashExp(StarExp(IdnUse("y"), AppExp(IdnUse("z"), IntExp(4))), IdnUse("x"))), AppExp(IdnUse("z"), IntExp(4)))
+                        Defn(IdnDef("z", FunType(IntType(), IntType())), 
+                            LamExp(
+                                IdnDef("i", IntType()), 
+                                PlusExp(
+                                    IdnUse("i"), StarExp(IntExp(4), IntExp(2))
+                                    )
+                                )
+                            )
+                        ),
+                    MinusExp(
+                        PlusExp(IdnUse("x"), 
+                        SlashExp(
+                            StarExp(IdnUse("y"), AppExp(IdnUse("z"), IntExp(4))), 
+                            IdnUse("x")
+                            )
+                        ), 
+                        AppExp(IdnUse("z"), IntExp(4)))
                 )))
     }
 
