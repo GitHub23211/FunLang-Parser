@@ -341,4 +341,17 @@ class SyntaxAnalysisTests extends ParseTests {
                     EqualExp(IdnUse("x"), IdnUse("y"))
                 )))
     }
+
+    test("associativity rules for cons") {
+    program("""{
+                val arr : List[Int] = List(1, 2, 3);
+                1 :: arr :: 2
+            }
+        """) should parseTo[Program] (Program(BlockExp(
+                Vector(
+                    Defn(IdnDef("arr", ListType(IntType())), ListExp(Vector(IntExp(1), IntExp(2), IntExp(3)))),
+                    ),
+                ConsExp(IntExp(1), ConsExp(IdnUse("arr"), IntExp(2)))
+            )))
+    }    
 }
