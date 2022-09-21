@@ -387,7 +387,7 @@ class SyntaxAnalysisTests extends ParseTests {
 
     test("Differentiate between tuples and brackets") {
     program("""{
-                def func(x:Int):List[(Int, (Int, Int, Int))] = (x + 4 * (5 - 3)) :: List() :: (1, 2, 3);
+                def func(x:Int):List[(Int, (Int, Int, Int))] = (x + 4 * (5 - 3)) :: List() :: (1, 2, (7 - 4 * (4 - 1)));
                 func(10)
             }
         """) should parseTo[Program] (Program(BlockExp(
@@ -398,7 +398,7 @@ class SyntaxAnalysisTests extends ParseTests {
                                 PlusExp(IdnUse("x"), StarExp(IntExp(4), MinusExp(IntExp(5), IntExp(3)))),
                                 ConsExp(
                                     ListExp(Vector()),
-                                    TupleExp(Vector(IntExp(1), IntExp(2), IntExp(3)))
+                                    TupleExp(Vector(IntExp(1), IntExp(2), MinusExp(IntExp(7), StarExp(IntExp(4),MinusExp(IntExp(4), IntExp(1))))))
                                 )
                             )   
                         )),
