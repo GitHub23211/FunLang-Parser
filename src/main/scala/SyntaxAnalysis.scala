@@ -46,7 +46,7 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
         "(" ~> repsep (factor, ",") <~ ")" ^^ TupleExp |
         "List" ~> "(" ~> repsep (exp, ",") <~ ")" ^^ ListExp |
         ("(" ~> idndef <~ ")") ~ ("=>" ~> exp) ^^ LamExp | 
-        exp6 ~ ("(" ~> exp <~ ")") ^^ AppExp |
+        factor ~ ("(" ~> exp <~ ")") ^^ AppExp |
         factor 
     
     lazy val exp5 : PackratParser[Exp] =
