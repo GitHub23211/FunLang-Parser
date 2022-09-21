@@ -294,7 +294,7 @@ class SyntaxAnalysisTests extends ParseTests {
                 )))
     }
 
-    test("associativity rules for + - / *") {
+    test("associativity and precedence rules for + - / *") {
         program("""{
                     val x: Int = 2;
                     val y: Int = 3;
@@ -354,4 +354,32 @@ class SyntaxAnalysisTests extends ParseTests {
                 ConsExp(IntExp(1), ConsExp(IdnUse("arr"), IntExp(2)))
             )))
     }    
+
+    test("Complex case and match") {
+    program("""{
+                val arr : List[Int] = List(1, 2, 3, 4);
+                def matchCase(x:List[Int]):Int =
+                (x, b) match {
+                    case (List(y, _), 15) => x :: b
+                    case (List(_), 15) => b
+                };
+                matchCase(arr)
+            }
+        """) should parseTo[Program] (Program(BlockExp(
+                Vector(
+                    Defn(IdnDef("arr", ListType(IntType())), ListExp(Vector(IntExp(1), IntExp(2), IntExp(3), IntExp(4)))),
+                    Defn(IdnDef("matchCase", FunType(ListType(IntType()), IntType())), 
+                        LamExp(IdnDef("x", ListType(IntType())), 
+                            MatchExp(TupleExp(Vector(IdnUse("x"), IdnUse("b"))),
+                                Vector(
+                                    (TuplePat(Vector(ListPat(Vector(IdentPat("y"), AnyPat())), LiteralPat(IntExp(15)))), ConsExp(IdnUse("x"), IdnUse("b"))),
+                                    (TuplePat(Vector(ListPat(Vector(AnyPat())), LiteralPat(IntExp(15)))), IdnUse("b"))
+                                )
+                            )
+                        )
+                    )
+                ),
+                AppExp(IdnUse("matchCase"), IdnUse("arr"))
+            )))
+    }   
 }

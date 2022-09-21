@@ -29,6 +29,7 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
         integer ^^ (s => IntExp (s.toInt))
 
     lazy val factor : PackratParser[Exp] =
+        "(" ~> repsep (factor, ",") <~ ")" ^^ TupleExp |
         "(" ~> exp <~ ")" |
         identifier ^^ IdnUse |
         literal |
@@ -43,7 +44,6 @@ class SyntaxAnalysis (positions : Positions) extends Parsers (positions) {
 
     lazy val exp6 : PackratParser[Exp] =
         ("{" ~> definitions) ~ (exp <~ "}") ^^ BlockExp |
-        "(" ~> repsep (factor, ",") <~ ")" ^^ TupleExp |
         "List" ~> "(" ~> repsep (exp, ",") <~ ")" ^^ ListExp |
         ("(" ~> idndef <~ ")") ~ ("=>" ~> exp) ^^ LamExp | 
         factor ~ ("(" ~> exp <~ ")") ^^ AppExp |
