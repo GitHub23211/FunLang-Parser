@@ -299,7 +299,7 @@ class SyntaxAnalysisTests extends ParseTests {
                     val x: Int = 2;
                     val y: Int = 3;
                     val z: Int => Int = (i : Int) => i + 4 * 2;
-                    x + y * z(4) / x - z(4)
+                    x + y * z(4) + x + x / x - z(4) - y
                 }
             """) should parseTo[Program] (Program(BlockExp(
                     Vector(
@@ -314,14 +314,25 @@ class SyntaxAnalysisTests extends ParseTests {
                                 )
                             )
                         ),
-                    MinusExp(
-                        PlusExp(IdnUse("x"), 
-                        SlashExp(
-                            StarExp(IdnUse("y"), AppExp(IdnUse("z"), IntExp(4))), 
-                            IdnUse("x")
-                            )
-                        ), 
-                        AppExp(IdnUse("z"), IntExp(4)))
+                        MinusExp(
+                            MinusExp(
+                                PlusExp(
+                                    PlusExp(
+                                        PlusExp(
+                                            IdnUse("x"),
+                                            StarExp(
+                                                IdnUse("y"),
+                                                AppExp(IdnUse("z"), IntExp(4))
+                                            )
+                                        ),
+                                        IdnUse("x")
+                                    ),
+                                    SlashExp(IdnUse("x"), IdnUse("x"))
+                                ),
+                                AppExp(IdnUse("z"), IntExp(4))
+                            ),
+                            IdnUse("y")
+                        )
                 )))
     }
 
@@ -330,7 +341,7 @@ class SyntaxAnalysisTests extends ParseTests {
                     val x: Int = 1;
                     val y: Int = 2;
                     val z: Int = 3;
-                    x == y == z
+                    x + y == z - x == z
                 }
             """) should parseTo[Program] (Program(BlockExp(
                     Vector(
@@ -338,7 +349,7 @@ class SyntaxAnalysisTests extends ParseTests {
                         Defn(IdnDef("y", IntType()), IntExp(2)),
                         Defn(IdnDef("z", IntType()), IntExp(3)),
                         ),
-                    EqualExp(IdnUse("x"), IdnUse("y"))
+                    EqualExp(PlusExp(IdnUse("x"), IdnUse("y")), MinusExp(IdnUse("z"), IdnUse("x")))
                 )))
     }
 
@@ -405,5 +416,45 @@ class SyntaxAnalysisTests extends ParseTests {
                     ),
                 AppExp(IdnUse("func"), IntExp(10))
             )))
-    }     
+    } 
+
+    // test("Multiple block statements") {
+    // program("""
+    //         {
+
+    //         } 
+    //         <
+    //         (
+    //             {
+
+    //             }
+    //             +
+    //             {
+
+    //             }
+    //         )
+    //     """) should parseTo[Program] (Program(LessExp(
+    //         BlockExp(
+    //             Vector(
+    //                 Defn(IdnDef("arr", ListType(IntType())), ListExp(Vector(IntExp(1), IntExp(2), IntExp(3)))),
+    //                 ),
+                
+    //         ),
+    //         PlusExp(
+    //             BlockExp(
+    //                 Vector(
+
+    //                 ),
+    //             IntExp()
+    //             ),
+                
+    //             BlockExp(
+    //                 Vector(
+
+    //                 ),
+    //             IntExp()
+    //             )
+    //         )
+    //         )))
+    // }        
 }
