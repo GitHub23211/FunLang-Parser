@@ -294,7 +294,7 @@ class SyntaxAnalysisTests extends ParseTests {
                 )))
     }
 
-    test("associativity and precedence rules for + - / *") {
+    test("associativity and precedence rules for basic operators (+ - / *)") {
         program("""{
                     val x: Int = 2;
                     val y: Int = 3;
@@ -356,13 +356,19 @@ class SyntaxAnalysisTests extends ParseTests {
     test("associativity rules for cons") {
     program("""{
                 val arr : List[Int] = List(1, 2, 3);
-                1 :: arr :: 2
+                def pushOne(v:List[Int]):List[Int] = v :: 1;
+                (1 :: arr) :: 2 :: pushOne(arr) :: 3
             }
         """) should parseTo[Program] (Program(BlockExp(
                 Vector(
                     Defn(IdnDef("arr", ListType(IntType())), ListExp(Vector(IntExp(1), IntExp(2), IntExp(3)))),
+                    Defn(IdnDef("pushOne", FunType(ListType(IntType()), ListType(IntType()))),
+                            LamExp(IdnDef("v", ListType(IntType())), 
+                                ConsExp(IdnUse("v"), IntExp(1))    
+                            )
+                        )
                     ),
-                ConsExp(IntExp(1), ConsExp(IdnUse("arr"), IntExp(2)))
+                ConsExp(ConsExp(IntExp(1), IdnUse("arr")), ConsExp(IntExp(2), ConsExp(AppExp(IdnUse("pushOne"), IdnUse("arr")), IntExp(3))))
             )))
     }    
 
