@@ -424,43 +424,67 @@ class SyntaxAnalysisTests extends ParseTests {
             )))
     } 
 
-    // test("Multiple block statements") {
-    // program("""
-    //         {
-
-    //         } 
-    //         <
-    //         (
-    //             {
-
-    //             }
-    //             +
-    //             {
-
-    //             }
-    //         )
-    //     """) should parseTo[Program] (Program(LessExp(
-    //         BlockExp(
-    //             Vector(
-    //                 Defn(IdnDef("arr", ListType(IntType())), ListExp(Vector(IntExp(1), IntExp(2), IntExp(3)))),
-    //                 ),
+    test("Multiple block and bracketed statements") {
+    program("""
+            {
+                val a : Int = 10;
+                def fac(x:Int):Int = x match {
+                    case 0 => 0
+                    case a => a * fac(a - 1)
+                    case _ => 0
+                };
+                func(a) * 2
+            } 
+            /
+            (
+                {
+                    def square(x:Int):Int = x * x;
+                    square(100)
+                }
+                +
+                {
+                    val a : Int = 1;
+                    val b : Int = 23;
+                    val c : Int = 764;
+                    a * b + c
+                }
+            )
+        """) should parseTo[Program] (Program(SlashExp(
+            BlockExp(
+                Vector(
+                        Defn(IdnDef("a", IntType()), IntExp(10)),
+                        Defn(IdnDef("fac", FunType(IntType(), IntType())), 
+                            LamExp(IdnDef("x", IntType()),
+                                MatchExp(IdnUse("x"), Vector(
+                                        (LiteralPat(IntExp(0)), IntExp(0)),
+                                        (IdentPat("a"), StarExp(IdnUse("a"), AppExp(IdnUse("fac"), MinusExp(IdnUse("a"), IntExp(1))))),
+                                        (AnyPat(), IntExp(0))
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                StarExp(AppExp(IdnUse("func"), IdnUse("a")), IntExp(2))
+            ),
+            PlusExp(
+                BlockExp(
+                    Vector(
+                        Defn(IdnDef("square", FunType(IntType(), IntType())),
+                            LamExp(IdnDef("x", IntType()), StarExp(IdnUse("x"), IdnUse("x")))
+                        )
+                    ),
+                    AppExp(IdnUse("square"), IntExp(100))
+                ),
                 
-    //         ),
-    //         PlusExp(
-    //             BlockExp(
-    //                 Vector(
-
-    //                 ),
-    //             IntExp()
-    //             ),
-                
-    //             BlockExp(
-    //                 Vector(
-
-    //                 ),
-    //             IntExp()
-    //             )
-    //         )
-    //         )))
-    // }        
+                BlockExp(
+                    Vector(
+                        Defn(IdnDef("a", IntType()), IntExp(1)),
+                        Defn(IdnDef("b", IntType()), IntExp(23)),
+                        Defn(IdnDef("c", IntType()), IntExp(764)),
+                    ),
+                PlusExp(StarExp(IdnUse("a"), IdnUse("b")), IdnUse("c"))
+                )
+            )
+            )))
+    }        
 }
