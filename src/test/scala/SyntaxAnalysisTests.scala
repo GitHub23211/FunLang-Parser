@@ -475,7 +475,6 @@ class SyntaxAnalysisTests extends ParseTests {
                     ),
                     AppExp(IdnUse("square"), IntExp(100))
                 ),
-                
                 BlockExp(
                     Vector(
                         Defn(IdnDef("a", IntType()), IntExp(1)),
@@ -486,5 +485,50 @@ class SyntaxAnalysisTests extends ParseTests {
                 )
             )
             )))
-    }        
+    }
+
+    test("Assign block statements to value") {
+    program("""{
+                val arr : List[Int] = List();
+                val x: Int = {
+                    val y : Int = 5;
+                    def double(x:Int):Int = x * 2;
+                    if (double(y) * double(y) < double(double(y)))
+                        y
+                    else
+                        double(y)
+                };
+                def append(i:Int):List[Int] = i match {
+                    case i => i :: arr
+                    case _ => arr :: i
+                };
+                append(x)
+            }
+        """) should parseTo[Program] (Program(BlockExp(
+                Vector(
+                    Defn(IdnDef("arr", ListType(IntType())), ListExp(Vector())),
+                    Defn(IdnDef("x", IntType()), BlockExp(
+                        Vector(
+                            Defn(IdnDef("y", IntType()), IntExp(5)),
+                            Defn(IdnDef("double", FunType(IntType(), IntType())), LamExp(
+                                IdnDef("x", IntType()), StarExp(IdnUse("x"), IntExp(2))
+                            ))
+                        ),
+                        IfExp(LessExp(
+                            StarExp(AppExp(IdnUse("double"), IdnUse("y")), AppExp(IdnUse("double"), IdnUse("y"))),
+                            AppExp(IdnUse("double"), AppExp(IdnUse("double"), IdnUse("y")))
+                        ),
+                        IdnUse("y"),
+                        AppExp(IdnUse("double"), IdnUse("y")))
+                    )),
+                    Defn(IdnDef("append", FunType(IntType(), ListType(IntType()))), LamExp(IdnDef("i", IntType()),
+                        MatchExp(IdnUse("i"), Vector(
+                            (IdentPat("i"), ConsExp(IdnUse("i"), IdnUse("arr"))),
+                            (AnyPat(), ConsExp(IdnUse("arr"), IdnUse("i")))
+                        )
+                    )))
+                ),
+                AppExp(IdnUse("append"), IdnUse("x"))
+            )))
+    }         
 }
