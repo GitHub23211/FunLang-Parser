@@ -272,6 +272,12 @@ class SyntaxAnalysisTests extends ParseTests {
     //
     // FIXME: more tests here...
 
+    test ("AppExp with unassigned LamExp") {
+        exp ("((a:Int) => a + 1)(3)") should parseTo[Exp] (AppExp(
+            LamExp(IdnDef("a", IntType()), PlusExp(IdnUse("a"), IntExp(1))), IntExp(3)
+        ))
+    }
+
     test ("block statement with if statement") {
         program("""{
                     val x: Int = 5;
@@ -446,7 +452,7 @@ class SyntaxAnalysisTests extends ParseTests {
                     val a : Int = 1;
                     val b : Int = 23;
                     val c : Int = 764;
-                    a * b + c
+                    ((x:Int) => 1 + ((y:Int) => y * 2)(x))(a) * b + c
                 }
             )
         """) should parseTo[Program] (Program(SlashExp(
@@ -481,7 +487,12 @@ class SyntaxAnalysisTests extends ParseTests {
                         Defn(IdnDef("b", IntType()), IntExp(23)),
                         Defn(IdnDef("c", IntType()), IntExp(764)),
                     ),
-                PlusExp(StarExp(IdnUse("a"), IdnUse("b")), IdnUse("c"))
+                PlusExp(
+                    StarExp(AppExp(LamExp(IdnDef("x", IntType()), 
+                            PlusExp(IntExp(1), AppExp(LamExp(IdnDef("y", IntType()), StarExp(IdnUse("y"), IntExp(2))), IdnUse("x"))
+                        )), IdnUse("a")
+                ), IdnUse("b")), 
+                IdnUse("c"))
                 )
             )
             )))
