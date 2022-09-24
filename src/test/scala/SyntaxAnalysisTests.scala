@@ -430,7 +430,7 @@ class SyntaxAnalysisTests extends ParseTests {
             )))
     } 
 
-    test("Multiple block and bracketed statements") {
+    test("Multiple and bracketed block statements") {
     program("""
             {
                 val a : Int = 10;
