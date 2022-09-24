@@ -342,7 +342,7 @@ class SyntaxAnalysisTests extends ParseTests {
                 )))
     }
 
-    test("associativity rules for non-associatives") {
+    test("associativity rules for EqualExp") {
         program("""{
                     val x: Int = 1;
                     val y: Int = 2;
