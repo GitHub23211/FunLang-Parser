@@ -347,7 +347,7 @@ class SyntaxAnalysisTests extends ParseTests {
                     val x: Int = 1;
                     val y: Int = 2;
                     val z: Int = 3;
-                    x + y == z - x == z
+                    x == y == z
                 }
             """) should parseTo[Program] (Program(BlockExp(
                     Vector(
@@ -355,7 +355,7 @@ class SyntaxAnalysisTests extends ParseTests {
                         Defn(IdnDef("y", IntType()), IntExp(2)),
                         Defn(IdnDef("z", IntType()), IntExp(3)),
                         ),
-                    EqualExp(PlusExp(IdnUse("x"), IdnUse("y")), MinusExp(IdnUse("z"), IdnUse("x")))
+                    EqualExp(IdnUse("x"), IdnUse("y"))
                 )))
     }
 
